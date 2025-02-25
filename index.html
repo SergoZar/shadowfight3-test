@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Shadow Fight 3 Equipment Master(шо?)</title>
+    <script src="libs/react.development.js"></script>
+    <script src="libs/react-dom.development.js"></script>
+    <!-- Don't use this in production: -->
+    <script src="libs/babel.min.js"></script>
+    <script src="libs/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="styles/styles.css">
+</head>
+
+<body>
+    <div id="root">
+        
+    </div>
+    <script src="js/data-moves.js"></script>
+    <script src="js/data-perks.js"></script>
+    <script src="js/data-equipment.js"></script>
+
+    <script type="text/babel">
+// page.html?data=h31_p27_p45__a14_p1_p16_p2_m9__w36_p42_p10_p125_p126_m7__t45
+
+
+const RARITY_UNIQUE = "unique";
+const RARITY_LEGENDARY = "legendary";
+const RARITY_EPIC = "epic";
+const RARITY_RARE = "rare";
+const RARITY_COMMON = "common";
+const RARITY_ALL = "all";
+
+
+const CARD_TYPE_PERK = "perk";
+const CARD_TYPE_MOVE = "move";
+const CARD_TYPE_ITEM = "item";
+const CARD_TYPE_NONE = "none";
+
+const FRACTION_LEGION = "legion";
+const FRACTION_DYNASTY = "dynasty";
+const FRACTION_HERALDS = "heralds";
+const FRACTION_UNAVAILABLE = "unavailable";
+const FRACTION_ALL = "all";
+
+const PAGE_HOME = "home";
+const PAGE_EQUIPMENT = "equipment";
+const PAGE_EQUIPMENT_LIST = "equipment-list";
+const PAGE_ABOUT = "about";
+
+const RIGHT_TOP_ICON_TYPE_SLOT = "slot";
+const RIGHT_TOP_ICON_TYPE_SHADOW_ABILITY = "shadow-ability";
+
+const SLOT_HELM = "helm";
+const SLOT_ARMOR = "armor";
+const SLOT_WEAPON = "weapon";
+const SLOT_RANGED = "ranged";
+
+let anal = null;
+
+
+function fuckingSort(array, func){
+    let new_array = array.map((i) => {return {...i}});
+
+    for (let i = 0; i < new_array.length; i++){
+        for (let j = 0; j < new_array.length; j++){
+            let a = new_array[i];
+            let b = new_array[j];
+            if (func(a, b)){
+                new_array[i] = b;
+                new_array[j] = a;
+            }
+        }
+    }
+
+    return new_array;
+}
+
+
+function sortPerks(perks){
+    let new_perks = perks.map((i) => {return {...i}});
+
+    const rarity_to_int = (rarity) => {
+        switch(rarity){
+            case RARITY_UNIQUE:
+                return 100;
+            case RARITY_LEGENDARY:
+                return 90;
+            case RARITY_EPIC:
+                return 80;
+            case RARITY_RARE:
+                return 70;
+            case RARITY_COMMON:
+                return 60;
+            default:
+                return 0;
+        }
+    };
+
+    const fraction_to_int = (fraction) => {
+        switch(fraction){
+            case FRACTION_LEGION:
+                return 100;
+            case FRACTION_DYNASTY:
+                return 90;
+            case FRACTION_HERALDS:
+                return 80;
+            default:
+                return 0;
+        }
+    };
+
+    const slot_to_int = (slot) =>{
+        switch(slot){
+            case SLOT_HELM:
+                return 100;
+            case SLOT_ARMOR:
+                return 90;
+            case SLOT_WEAPON:
+                return 80;
+            case SLOT_RANGED:
+                return 70;
+            default:
+                return 0;
+        }
+    }
+
+    const sort_rule_rarity = (a,b) =>  rarity_to_int(b.rarity) - rarity_to_int(a.rarity);
+    const sort_rule_fraction = (a, b) => fraction_to_int(b.fraction) - fraction_to_int(a.fraction);
+    const sort_rule_slot = (a, b) => slot_to_int(b.slot) - slot_to_int(a.slot);
+    // new_perks.sort((a,b) => a.icon < b.icon);
+    new_perks.sort(sort_rule_slot);
+    new_perks.sort(sort_rule_rarity);
+    new_perks.sort(sort_rule_fraction);
+    return new_perks;
+}
+
+function selectPerks(fraction, rarity, array=null, unavailable=false){
+    fraction = fraction ?? "";
+    rarity = rarity ?? "";
+    array = array ?? DATA_PERKS;
+    
+    if (unavailable){
+        if (fraction === null && rarity === null)
+            return array.map((i) => {return {...i}});
+        return array.filter((p) => p.fraction === "" && p.rarity === "");
+    }
+
+    if ((fraction && rarity) )
+        return array.filter((p) => p.fraction === fraction && p.rarity === rarity);
+    if (fraction)
+        return array.filter((p) => p.fraction === fraction);
+    if (rarity)
+        return array.filter((p) => p.rarity === rarity);
+
+    return array.map((i) => {return {...i}})
+}
+
+
+function MyApp() {
+    // let [page, setPage] = React.useState(PAGE_HOME);
+    // let [page, setPage] = React.useState(PAGE_EQUIPMENT_LIST);
+    let [page, setPage] = React.useState(PAGE_EQUIPMENT);
+
+    function handlePageClick(page){
+        setPage(page);
+    }
+
+    return (
+    <div className="app">
+        <header id="header">
+            <nav>
+                <RadioSelectors_Test 
+                texts={["Домашняя страница", "Сборка", "Список вещей", "О сайте"]}
+                onClicks={[
+                    ()=>handlePageClick(PAGE_HOME),
+                    ()=>handlePageClick(PAGE_EQUIPMENT),
+                    ()=>handlePageClick(PAGE_EQUIPMENT_LIST),
+                    ()=>handlePageClick(PAGE_ABOUT)
+                ]}
+                defaultActiveId={1}
+                />
+            </nav>
+        </header>
+        <section>
+            <SwitchPage page={page}/>
+        </section>
+        <div id="suka"></div>
+    </div>
+
+
+    )
+}
+
+function SwitchPage({page}){
+    switch(page){
+        case PAGE_HOME: 
+            return <PageHome/>
+        case PAGE_EQUIPMENT: 
+            return <PageEq/>
+        case PAGE_EQUIPMENT_LIST: 
+            return <PageEqList/>
+        case PAGE_ABOUT: 
+            return <PageAbout/>
+        default:
+            return <div>Такого нема: {page}</div>
+    }
+}
+
+function PageHome(){
+    return (
+        <div>Пока не придумал что тут</div>
+    )
+}
+
+
+// -PageEq----------------------------------------
+
+function superRandomKey(){
+    return (Math.random() * 999 * Math.random() * 999 * Math.random() * 999)*99
+}
+
+function getPerkById(id){
+    return DATA_PERKS.find((perk) => perk.id === id);
+}
+
+function getPerksByIds(ids){
+    return DATA_PERKS.filter((perk) => ids.includes(perk.id));
+}
+
+function getPerksWithoutIds(ids){
+    return DATA_PERKS.filter((perk) => !ids.includes(perk.id));
+}
+
+function getPerksBySlot(slot, array){
+    return copyPerks(array).filter((perk) => perk.slot === slot);
+}
+
+function getPerksByFraction(fraction, array){
+    return copyPerks(array).filter((perk) => perk.fraction === fraction);
+}
+
+function copyPerks(array){
+    return array.map((i) => {return {...i}})
+}
+
+function PageEq(){
+    let [listToPrint, setListToPrint] = React.useState(()=>selectPerks(FRACTION_LEGION, null,sortPerks(DATA_PERKS)));
+    
+    let [ {perksListHelm, perksListArmor, perksListWeapon, kode, urlKode}, setPerksListOrKode ] = React.useState(()=>(
+    {
+        perksListHelm:[], 
+        perksListArmor:[], 
+        perksListWeapon:[],
+        kode: "", 
+        urlKode: ""
+    }));
+
+    let [active, setActive] = React.useState(false);
+    let [selectedSlot, setSelectedSlot] = React.useState(SLOT_HELM);
+    let [selectedFraction, setSelectedFraction] = React.useState(FRACTION_LEGION);
+
+    let getArrayAndSetterBySlot = (slot) => {
+        // let array = null;
+        // let setter = null;
+
+        let hz = {
+            [SLOT_HELM]: [perksListHelm, (arr)=>{setPerksListOrKode(l => {
+                let kode = generateKode(arr, l.perksListArmor, l.perksListWeapon);
+                return {...l, perksListHelm: arr, kode: kode, urlKode: generateUrlKode(kode)}
+            })}],
+            [SLOT_ARMOR]: [perksListArmor, (arr)=>{setPerksListOrKode(l => {
+                let kode = generateKode(l.perksListHelm, arr, l.perksListWeapon);
+                return {...l, perksListArmor: arr, kode: kode, urlKode: generateUrlKode(kode)}
+            })}],
+            [SLOT_WEAPON]: [perksListWeapon, (arr)=>{setPerksListOrKode(l => {
+                let kode = generateKode(l.perksListHelm, l.perksListArmor, arr);
+                return {...l, perksListWeapon: arr, kode: kode, urlKode: generateUrlKode(kode)}
+            })}],
+        }
+        return hz[slot];
+    }
+
+    const isPerksFractionOne = (perkId) => {
+        let ids = [].concat(perksListArmor, perksListWeapon, perksListHelm);
+        if (ids.length === 0) return true;
+        return getPerkById(ids[0]).fraction === getPerkById(perkId).fraction;
+    }
+
+    const selectListToPrint = (perksListHelm, perksListArmor, perksListWeapon, slot, fraction = selectedFraction) => {
+        let all_perks = [].concat(perksListHelm, perksListArmor, perksListWeapon);
+        all_perks = getPerksWithoutIds(all_perks); 
+        all_perks = getPerksByFraction(fraction, all_perks);
+        return getPerksBySlot(slot, all_perks);
+    }
+
+
+    let handlePerksSelectorOnclick = (target) => {
+        let item_id = + target.target.parentNode.getAttribute("data-card-id");
+        // let slot = target.target.parentNode.getAttribute("data-card-slot");
+        if (item_id){
+            if (!isPerksFractionOne(item_id)){
+                alert("Нельзя смешивать фракции")
+                return;
+            }
+            let [array, setter] = getArrayAndSetterBySlot(selectedSlot);
+            
+            let kopy = [...array, item_id];
+            // kodeGeneration(selectedSlot, kopy);
+            setter(kopy);
+            kopy = kopy.concat(perksListHelm, perksListArmor, perksListWeapon);
+            kopy = getPerksWithoutIds(kopy);
+            kopy = getPerksByFraction(selectedFraction, kopy);
+            setListToPrint(kopy);
+            setActive(false);
+        }
+    };
+
+    let handleAddClick = (slot) => {
+        setActive(!active);
+        if (slot !== selectedSlot)
+            setActive(true);
+        setSelectedSlot(slot);
+        setListToPrint(selectListToPrint(perksListHelm, perksListArmor, perksListWeapon, slot));
+        
+    }
+
+    let handleOnlyPerksClick = (target) =>{
+        let slot = target.target.parentNode.getAttribute("data-card-slot");
+        let item_id = + target.target.parentNode.getAttribute("data-card-id");
+        
+        if (slot && item_id){
+            let [array, setter] = getArrayAndSetterBySlot(slot);
+            let kopy = [...array].filter((i) => i != item_id);
+            setter(kopy);
+
+            // kodeGeneration(slot, kopy);
+            kopy = kopy
+                    .concat(perksListHelm, perksListArmor, perksListWeapon)
+                    .filter((i) => i != item_id);
+            kopy = getPerksWithoutIds(kopy);
+            kopy = getPerksByFraction(selectedFraction, kopy);
+            setListToPrint(kopy);
+            
+        }
+    }
+
+    const generateKode = (perksListHelm = [], perksListArmor = [], perksListWeapon = []) => {
+        // console.log(9999,slot, array)
+        let kode = "op_";
+        kode += "h" + perksListHelm.join("_") + "__";
+        kode += "a" + perksListArmor.join("_") + "__";
+        kode += "w" + perksListWeapon.join("_");
+        return (kode.match(/\d/)) ? kode : "";  
+    }
+    
+    const kodeParse = (text="") => {
+        
+        const isKodeValid = (text) => !!text.match(/^op_h((\d+_)|_)+_a((\d+_)|_)+_w((\d+(_|$))+|$)/);
+        if (isKodeValid(text)){
+            console.log("kode", text);
+            const parse_numbers = (s) => s.split('_').map((n) => parseInt(n)).filter((n)=> n);
+            let arr = text.replace("op_", "").split("__");
+            let helm = arr.filter((s)=> s.startsWith('h'))[0].replace("h","");
+                helm = parse_numbers(helm);
+            let armor = arr.filter((s)=> s.startsWith('a'))[0].replace("a","");
+                armor = parse_numbers(armor);
+            let weapon = arr.filter((s)=> s.startsWith('w'))[0].replace("w","");
+                weapon = parse_numbers(weapon);
+            
+            setPerksListOrKode((last)=>{
+                let kode = generateKode(helm, armor, weapon);
+                return {
+                ...last,
+                perksListHelm: helm,
+                perksListArmor: armor,
+                perksListWeapon: weapon,
+                kode: kode,
+                urlKode: generateUrlKode(kode)
+            }});
+            let all_perks = [].concat(helm, armor, weapon);
+            if  (all_perks.length > 0){
+                let fraction = getPerkById(all_perks[0]).fraction;
+                console.log(fraction);
+                setSelectedFraction(fraction);
+                setListToPrint(selectListToPrint(helm, armor, weapon, selectedSlot, fraction));
+            }
+            else {
+                setListToPrint(selectListToPrint(helm, armor, weapon, selectedSlot, selectedFraction));
+            }
+            
+        
+        }
+        else{
+            if (kode){
+                alert("Код не правильный");
+                input.value = "";
+            }
+        }
+    }
+
+    const handleParseKodeClick = () => {
+        let text = document.getElementById('kode-input').value;
+        // let value = (typeof kode === "string") ? kode : input.value;
+        let kode = kodeParse(text);
+        
+    }
+
+    let urlKodeParse = () => {
+        let url = new URL(document.URL);
+        let kode = url.searchParams.get("op");
+        if (kode)
+            kodeParse(kode);
+    }
+
+    React.useEffect(()=>{
+        urlKodeParse();
+    },[]);
+    
+    React.useEffect(()=>{
+        let input = document.getElementById('url-kode-kopy-input');
+        // setTimeout( () => input.scrollTo(99999999,0), 120);
+        input.scrollTo(99999999,0);
+    }, [kode]);
+
+    const generateUrlKode = (kode) => {
+        var url = new URL(document.URL);
+        url.searchParams.set("op", kode);
+        // console.log(kode,url);
+        return url.toString();
+    }
+
+    const select_fraction = (fraction) => {
+        if (selectedFraction === fraction)
+            fraction = null;
+        setSelectedFraction(fraction);
+        let perks = [].concat(perksListHelm, perksListArmor, perksListWeapon);
+        perks = getPerksWithoutIds(perks);
+        perks = getPerksByFraction(fraction, perks);
+        setListToPrint(perks);
+    };
+
+    const handleCopyCodeClick = () => {
+        let input = document.getElementById('kode-kopy-input');
+        input.select();
+        document.execCommand("copy");
+    }
+
+    const handleCopyUrlCodeClick =() => {
+        let input = document.getElementById('url-kode-kopy-input');
+        input.select();
+        document.execCommand("copy");
+    }
+
+    let toImage = () => {
+        let target = document.querySelector('.page-eq-st__only-perks');
+        html2canvas(target, {backgroundColor: null}).then(canvas => {
+            const a = document.createElement("a");
+            a.href = canvas.toDataURL("image/png");
+            a.download = `sf3_fit__${kode}__.png`;
+            a.click();
+            a.remove();
+        });
+    }
+
+    let [{baseDamage, midDamagePer10, midDamagePer100,sumDamagePer10, sumDamagePer100, maxDamage}, setDamages] = React.useState(()=>({
+        baseDamage: 100, 
+        midDamagePer10: 100, 
+        midDamagePer100: 100, 
+        sumDamagePer10: 100*10,
+        sumDamagePer100: 100*100,
+        maxDamage: 100
+    }));
+
+    const calculateDamage = () => {
+        let all_perks = [].concat(perksListArmor, perksListHelm, perksListWeapon);
+        all_perks = getPerksByIds(all_perks);
+        let bonuses = all_perks.map((perk) => perk.bonuses).filter(b => b !== undefined);
+        if (bonuses.length === 0) return;
+
+        const damage_calc = (iterations) => {
+            let all_damage = 0;
+            for (let i = 0; i < iterations; i++) {
+                let damage = baseDamage;
+                for (let bonus of bonuses)
+                    if (Math.random() <= bonus.chance[1])
+                        damage += baseDamage * bonus.damage[1]
+                all_damage += damage;
+            }
+            return [all_damage / iterations, all_damage];
+        };
+        let midDamagePer10, sumDamagePer10;
+        [midDamagePer10, sumDamagePer10] = damage_calc(10);
+        let [midDamagePer100, sumDamagePer100] = damage_calc(100);
+
+        let maxDamage = baseDamage;
+        for (let bonus of bonuses)
+            maxDamage += baseDamage * bonus.damage[1]
+        console.log(bonuses);
+        const round = (n) => parseInt(n * 100) / 100;
+        setDamages((l) => ({ 
+            ...l,
+            midDamagePer10: round(midDamagePer10), 
+            midDamagePer100: round(midDamagePer100), 
+            sumDamagePer10: round(sumDamagePer10),
+            sumDamagePer100: round(sumDamagePer100),
+            maxDamage: round(maxDamage)
+        }));
+    }
+
+    React.useEffect(() => {
+        calculateDamage();
+    }, [kode]);
+
+    let [activeId, setActiveId] = React.useState(null);
+    
+    React.useEffect (() => {
+        console.log([FRACTION_LEGION, FRACTION_DYNASTY, FRACTION_HERALDS], selectedFraction);
+        
+        let id = [FRACTION_LEGION, FRACTION_DYNASTY, FRACTION_HERALDS].indexOf(selectedFraction);
+        setActiveId(id);
+    }, [selectedFraction]);
+    
+    return (
+    <div className="page-eq-st-container">
+        <header>
+        {/*<header className="header-row" >*/}
+            <nav>
+                <a href="#" data-active="true">Только перки</a>
+                <a href="#" data-unavailable="true">Перки и Экипировка</a>
+            </nav>
+            <nav>
+                <RadioSelectors_Test 
+                    texts={["Легион","Династия","Весники"]}
+                    onClicks={[ 
+                        ()=>{select_fraction(FRACTION_LEGION)}, 
+                        ()=>{select_fraction(FRACTION_DYNASTY)},
+                        ()=>{select_fraction(FRACTION_HERALDS)},
+                    ]}
+                    defaultActiveId={0}
+                    setIdToActive={activeId}
+                />
+            </nav>
+            <div className="kode-manipulation">
+                <div className="huy">
+                    <span className="nowrap">Код сборки:</span> 
+                    <input id="kode-kopy-input" value={kode} readOnly/> 
+                    <button onClick={handleCopyCodeClick}>Копировать</button>
+                </div>
+                <div className="huy">
+                    <span className="nowrap">Вставь код сборки:</span>  
+                    <input id="kode-input" type="text"/> 
+                    <button onClick={handleParseKodeClick}>Собрать</button>
+                </div>
+            </div>
+            <div className="kode-manipulation">
+                <div className="huy"><button onClick={toImage}>В картинку</button></div>
+                <div className="huy">
+                    <span className="nowrap">Ссылка сборки:</span> 
+                    
+                    <input id="url-kode-kopy-input" value={urlKode} readOnly/> 
+                    <button onClick={handleCopyUrlCodeClick}>Копировать</button>
+                </div>
+            </div>
+            
+        </header>
+        <main className="container">
+            <div className="page-eq-st__perks-selector" data-active={active} onClick={handlePerksSelectorOnclick}>
+                <CardsList array={sortPerks(listToPrint)} type={CARD_TYPE_PERK} isOneRow/>
+            </div>
+            <div>
+                <PageEqStOnlyPerks 
+                    perksListHelm={perksListHelm}
+                    perksListArmor={perksListArmor}
+                    perksListWeapon={perksListWeapon}
+                    onClick={handleOnlyPerksClick}
+                    handleAddClick={handleAddClick}
+                />
+            </div>
+            <div className="page-eq-st__info">
+                <h3>Приблизительный рассчёт урона</h3>
+                <h4>имеется ввиду макс уровень перков и что перк срабатывает независимо от условия выполнения</h4>
+                <h4>рандом учитывается по принципу</h4>
+                <h4> Math.random() {"<="} шанс</h4>
+                
+                <h5>это не 100% точный подсчёт</h5>
+                <h5>я не ебу чё там под капотом игры</h5>
+                <h5>может там вообще все не так как я думаю</h5>
+                <div style={{marginBottom:'10px'}}></div>
+                <div>Базовый урон: {baseDamage}</div>
+                <div>Макcимальный урон за 1 удар(сработали все перки): {maxDamage}</div>
+                <div>Cредний урон за 10 ударов: {midDamagePer10}</div>
+                <div>Cуммарный урон за 10 ударов: {sumDamagePer10}</div>
+                <div>Cредний урон за 100 ударов: {midDamagePer100}</div>
+                <div>Cуммарный урон за 100 ударов: {sumDamagePer100}</div>
+            </div>
+        </main>
+    </div>
+    )
+}
+
+
+function PageEqStOnlyPerks({perksListHelm, perksListArmor, perksListWeapon, onClick, handleAddClick}){
+    return (
+        <div className="page-eq-st__only-perks" onClick={onClick}>
+            <CardsRow array={getPerksByIds(perksListHelm)} maxCards={2} onClick={()=>{handleAddClick(SLOT_HELM)}}  />
+            <CardsRow array={getPerksByIds(perksListArmor)} onClick={()=>{handleAddClick(SLOT_ARMOR)}} />
+            <CardsRow array={getPerksByIds(perksListWeapon)} onClick={()=>{handleAddClick(SLOT_WEAPON)}}/>
+        </div>
+    )
+}
+
+/**
+ * @param{{
+ *     array:any,
+ *     onClick:any,
+ *     test:'a'|'b'
+ * }} props 
+ */
+function CardsRow({array=[], onClick=null, maxCards=3}){
+    let cards_count = 0;
+    if (array.length < maxCards){
+        cards_count = maxCards - array.length;
+    }
+    let generatePlaceholder = () => {
+        return <CardPlaceholder key={superRandomKey()} onClick={onClick}/>
+    }
+    let cards = Array(cards_count).fill(null).map(()=>generatePlaceholder());
+    let a = array.map((item) => 
+                <Card 
+                    key={superRandomKey()} 
+                    name={item.name} 
+                    type={CARD_TYPE_PERK} 
+                    rarity={item.rarity}  
+                    fraction={item.fraction} 
+                    icon={item.icon} 
+                    cardId={item.id}
+                    rightTopIconName={item.slot}
+                    cardSlot={item.slot}
+                />);
+            
+    return (
+    <div className="cards-row">
+        {a}{cards}
+    </div> 
+    )
+}
+
+function CardPlaceholder({onClick=null}){
+    return (
+    <button className="card-placeholder" onClick={onClick}>
+        <div className="card">
+            <img className="card--bg" src="img_webp/pla1.webp"/>
+        </div>
+    </button>
+    )
+}
+
+// -/PageEq---------------------------------------
+
+
+// -PageEqList------------------------------------
+function PageEqList(){
+    let sorted = sortPerks(DATA_PERKS);
+    let [selectedFraction, setSelectedFraction] = React.useState(null);
+    let [selectedRarity, setSelectedRarity] = React.useState(null);
+    let [listToPrint, setListToPrint] = React.useState(sorted);
+ 
+    const selectPerksToPrint = (fraction, rarity) => {
+        let selected = selectPerks(fraction, rarity, sorted);
+        // console.log(selected);
+        setListToPrint(sortPerks(selected));
+    };
+
+    const select_fraction = (fraction) => {
+        if (selectedFraction === fraction)
+            fraction = null;
+        setSelectedFraction(fraction);
+        selectPerksToPrint(fraction, selectedRarity);
+    };
+
+    const select_rarity = (rarity) => {
+        if (selectedRarity === rarity)
+            rarity = null;
+        setSelectedRarity(rarity);
+        selectPerksToPrint(selectedFraction, rarity);
+    };
+
+    return (
+    <div className="page-eq-st-container">
+        <header>
+            <nav>
+                <a href="#" data-unavailable>Экипировка</a>
+                <a href="#" data-unavailable >Перки</a>
+                <a href="#" data-active="true" >Спецприемы</a>
+                <a href="#" data-unavailable >Не доступные вещи</a>
+            </nav>
+            <nav>
+                <RadioSelectors_Test 
+                    texts={["Легион","Династия","Весники"]}
+                    onClicks={[ 
+                        ()=>{select_fraction(FRACTION_LEGION)}, 
+                        ()=>{select_fraction(FRACTION_DYNASTY)},
+                        ()=>{select_fraction(FRACTION_HERALDS)},
+                    ]}
+                />
+            </nav>
+            <nav>
+                <RadioSelectors_Test 
+                    texts={[
+                        "Уникальное",
+                        "Легендарное",
+                        "Эпическое",
+                        "Редкое",
+                        "Обычное"
+                    ]}
+                    onClicks={[
+                        ()=>{select_rarity(RARITY_UNIQUE)},
+                        ()=>{select_rarity(RARITY_LEGENDARY)},
+                        ()=>{select_rarity(RARITY_EPIC)},
+                        ()=>{select_rarity(RARITY_RARE)},
+                        ()=>{select_rarity(RARITY_COMMON)},
+                    ]}
+                    classesList={[
+                        "text-unique", 
+                        "text-legendary", 
+                        "text-epic", 
+                        "text-rare", 
+                        "text-common"
+                    ]}
+                />
+            </nav>
+        </header>
+
+        <CardsList array={listToPrint} type={CARD_TYPE_PERK}/>
+    </div>
+    )
+}
+// -/PageEqList-----------------------------------
+
+
+function RadioSelectors_Test({texts, onClicks, classesList=[], defaultActiveId=null, setIdToActive=null}){
+    let [activeId, setActiveId] = React.useState(defaultActiveId);
+    console.log("defaultActiveId", defaultActiveId);
+    console.log("setIdToActive", setIdToActive);
+    let toggleA_s = texts.map((text, i)=>{
+        return (
+            <a 
+                key={i} 
+                className={(classesList.length !== 0) ? classesList[i] : null}
+                href="#" 
+                data-active={(setIdToActive != null) ? setIdToActive === i : i === activeId} 
+                onClick={() => { 
+                    onClicks[i](); 
+                    setActiveId((activeId === i) ? null : i);
+                }}
+            >{text}</a>)
+    });
+    return (<>{toggleA_s}</>)
+}
+
+function PageAbout(){
+    return (
+        <div>и тут тоже</div>
+    )
+}
+
+function CardsList({array, type, isOneRow=false}){
+    let perks_legion = selectPerks(FRACTION_LEGION, "", array);
+    let perks_dynasty = selectPerks(FRACTION_DYNASTY, "", array);
+    let perks_heralds = selectPerks(FRACTION_HERALDS, "", array);
+    let perks_none = selectPerks("", "", array, true);
+    if (isOneRow)
+        return <CardsListSection array={array} type={type}/>
+    
+    return (
+        <div className="cards-list">
+            <CardsListSection array={perks_legion} type={type}/>
+            <CardsListSection array={perks_dynasty} type={type}/>
+            <CardsListSection array={perks_heralds} type={type}/>
+            <CardsListSection array={perks_none} type={type}/>
+        </div>
+    )
+}
+
+function CardsListSection({array, type}){
+    if (array.length === 0) return null;
+    let sections = [];
+    let generateSection = (array) => {
+        return <div key={superRandomKey()}  className="cards-list--section">
+            {array.map((item) => 
+                <Card 
+                    key={superRandomKey()} 
+                    name={item.name} 
+                    type={type} 
+                    rarity={item.rarity}  
+                    fraction={item.fraction} 
+                    icon={item.icon} 
+                    cardId={item.id}
+                    rightTopIconName={item.slot}
+                />
+            )}
+        </div>
+    };
+    
+    if (sections.length > 0)
+        return (<>{sections}</>)
+
+    return (
+        <>{generateSection(array)}</>
+    )
+}
+
+
+function CardOutline({type, rarity}){
+    let path = "img_webp/card_outline";
+    // console.log(rarity, type);
+    switch(type){
+        case CARD_TYPE_PERK:
+            path += "_perk"
+        break;
+        case CARD_TYPE_MOVE:
+            path += "_move";
+        break;
+        case CARD_TYPE_ITEM:
+            path += "_item";
+        break;
+        case CARD_TYPE_NONE:
+            path += "_";
+        break;
+        default:
+            path += "_";
+        break;
+    }
+
+    switch(rarity){
+        case RARITY_UNIQUE:
+            if (type === CARD_TYPE_ITEM || type === CARD_TYPE_ITEM) 
+                path += "_unique";
+            else
+                path += "";
+        break;
+        case RARITY_LEGENDARY:
+            path += "_legendary";
+        break;
+        case RARITY_EPIC:
+            path += "_epic";
+        break;
+        case RARITY_RARE:
+            path += "_rare";
+        break;
+        case RARITY_COMMON:
+            path += "_common";
+        break;
+    }
+
+    path += ".webp";
+
+    return <img className="card--outline" src={path}/>
+}
+
+function FractionIcon({fraction}){
+    let path = "";
+
+    switch(fraction){
+        case FRACTION_LEGION:
+            path = "img_webp/legion.webp";
+        break;
+        case FRACTION_DYNASTY:
+            path = "img_webp/dynasty.webp";
+        break;
+        case FRACTION_HERALDS:
+            path = "img_webp/heralds.webp";
+        break;
+    }
+
+    if (fraction)
+        return <img className="card--fraction" src={path}/>;
+    return "";
+}
+
+
+function CardIcon ({type, icon}){
+    let className = "card--icon ";
+    if (type === CARD_TYPE_ITEM || type === CARD_TYPE_NONE)
+        className += "card--icon-item";
+    else if (type === CARD_TYPE_MOVE)
+        className += "card--icon-move"
+    else if (type === CARD_TYPE_PERK)
+        className += "card--icon-perk"
+
+    return <img className={className} src={icon}/>
+}
+
+
+function CardRightTopIcon({rightTopIconType=null, name=null}){
+    if (!name)
+        return null;
+    if(rightTopIconType === RIGHT_TOP_ICON_TYPE_SLOT){
+        let path = null;
+        switch (name){
+            case "helm":
+                path = "img_webp/helmet.webp" ;
+            break;
+            case "armor":
+                path = "img_webp/armor.webp";
+            break;
+            case "weapon":
+                path = "img_webp/weapon.webp";
+            break;
+            
+        }
+        if (path)
+            return <img className="card-right-top-icon" src={path}/>
+    }
+    return null;
+}
+
+function Card({name, rarity, type, fraction, icon, cardId=null, rightTopIconName=null, cardSlot=null}){
+    let klas = "card " + rarity;
+    return (
+        <div className="card-wrapper">
+            <div className={klas} data-card-id={cardId} data-card-type={type} data-card-slot={cardSlot}>
+                <img className="card--bg" src="img_webp/card_bg.webp"/>
+                <CardOutline type={type} rarity={rarity}/>
+                <CardIcon type={type} icon={icon}/>
+                <FractionIcon fraction={fraction}/>
+                <CardRightTopIcon rightTopIconType={RIGHT_TOP_ICON_TYPE_SLOT} name={rightTopIconName}/>
+            </div>
+        </div>
+    )
+
+}
+//------------------------------------------------
+
+
+//------------------------------------------------
+const container = document.getElementById('root');
+const root = ReactDOM.createRoot(container);
+root.render(<MyApp />);
+
+    </script>
+
+
+</body>
+
+</html>
