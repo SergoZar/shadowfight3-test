@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8" />
+    <meta name='viewport' content='width = device-width,height = device-height, initial-scale = 1'>
     <title>Shadow Fight 3 Equipment Master(шо?)</title>
     <script src="libs/react.development.js"></script>
     <script src="libs/react-dom.development.js"></script>
@@ -19,10 +20,18 @@
     <script src="js/data-moves.js"></script>
     <script src="js/data-perks.js"></script>
     <script src="js/data-equipment.js"></script>
+    <script src="js/data-lang-ru.js"></script>
+    <script src="js/data-lang-en.js"></script>
 
     <script type="text/babel">
 // page.html?data=h31_p27_p45__a14_p1_p16_p2_m9__w36_p42_p10_p125_p126_m7__t45
 
+// let LANG = LANG_RU;
+let LANG = LANG_EN;
+
+function getLangString(text){
+    return (!!LANG[text]) ? LANG[text] : "Hz string translation";
+}
 
 const RARITY_UNIQUE = "unique";
 const RARITY_LEGENDARY = "legendary";
@@ -161,7 +170,9 @@ function MyApp() {
     // let [page, setPage] = React.useState(PAGE_HOME);
     // let [page, setPage] = React.useState(PAGE_EQUIPMENT_LIST);
     let [page, setPage] = React.useState(PAGE_EQUIPMENT);
-
+    if(["uk-UA", "uk", "ru-RU", "ru"].includes(navigator.language)){
+        LANG = LANG_RU;
+    }
     function handlePageClick(page){
         setPage(page);
     }
@@ -171,7 +182,7 @@ function MyApp() {
         <header id="header">
             <nav>
                 <RadioSelectors_Test 
-                texts={["Домашняя страница", "Сборка", "Список вещей", "О сайте"]}
+                texts={[getLangString("Домашняя страница"), getLangString("Сборка"), getLangString("Список вещей"), getLangString("О сайте")]}
                 onClicks={[
                     ()=>handlePageClick(PAGE_HOME),
                     ()=>handlePageClick(PAGE_EQUIPMENT),
@@ -185,7 +196,6 @@ function MyApp() {
         <section>
             <SwitchPage page={page}/>
         </section>
-        <div id="suka"></div>
     </div>
 
 
@@ -203,13 +213,13 @@ function SwitchPage({page}){
         case PAGE_ABOUT: 
             return <PageAbout/>
         default:
-            return <div>Такого нема: {page}</div>
+            return <div>{getLangString("Такого нет:")} {page}</div>
     }
 }
 
 function PageHome(){
     return (
-        <div>Пока не придумал что тут</div>
+        <div>{getLangString("Пока не придумал что тут")}</div>
     )
 }
 
@@ -300,7 +310,7 @@ function PageEq(){
         // let slot = target.target.parentNode.getAttribute("data-card-slot");
         if (item_id){
             if (!isPerksFractionOne(item_id)){
-                alert("Нельзя смешивать фракции")
+                alert(getLangString("Нельзя смешивать фракции"))
                 return;
             }
             let [array, setter] = getArrayAndSetterBySlot(selectedSlot);
@@ -358,7 +368,7 @@ function PageEq(){
         
         const isKodeValid = (text) => !!text.match(/^op_h((\d+_)|_)+_a((\d+_)|_)+_w((\d+(_|$))+|$)/);
         if (isKodeValid(text)){
-            console.log("kode", text);
+            // console.log("kode", text);
             const parse_numbers = (s) => s.split('_').map((n) => parseInt(n)).filter((n)=> n);
             let arr = text.replace("op_", "").split("__");
             let helm = arr.filter((s)=> s.startsWith('h'))[0].replace("h","");
@@ -381,7 +391,7 @@ function PageEq(){
             let all_perks = [].concat(helm, armor, weapon);
             if  (all_perks.length > 0){
                 let fraction = getPerkById(all_perks[0]).fraction;
-                console.log(fraction);
+                // console.log(fraction);
                 setSelectedFraction(fraction);
                 setListToPrint(selectListToPrint(helm, armor, weapon, selectedSlot, fraction));
             }
@@ -393,7 +403,7 @@ function PageEq(){
         }
         else{
             if (kode){
-                alert("Код не правильный");
+                alert(getLangString("Код не правильный"));
                 input.value = "";
             }
         }
@@ -454,6 +464,7 @@ function PageEq(){
 
     let toImage = () => {
         let target = document.querySelector('.page-eq-st__only-perks');
+        console.log('isBacgroundTransparent', isBacgroundTransparent);
         html2canvas(target, {backgroundColor: null}).then(canvas => {
             const a = document.createElement("a");
             a.href = canvas.toDataURL("image/png");
@@ -496,7 +507,7 @@ function PageEq(){
         let maxDamage = baseDamage;
         for (let bonus of bonuses)
             maxDamage += baseDamage * bonus.damage[1]
-        console.log(bonuses);
+        // console.log(bonuses);
         const round = (n) => parseInt(n * 100) / 100;
         setDamages((l) => ({ 
             ...l,
@@ -515,23 +526,29 @@ function PageEq(){
     let [activeId, setActiveId] = React.useState(null);
     
     React.useEffect (() => {
-        console.log([FRACTION_LEGION, FRACTION_DYNASTY, FRACTION_HERALDS], selectedFraction);
+        // console.log([FRACTION_LEGION, FRACTION_DYNASTY, FRACTION_HERALDS], selectedFraction);
         
         let id = [FRACTION_LEGION, FRACTION_DYNASTY, FRACTION_HERALDS].indexOf(selectedFraction);
         setActiveId(id);
     }, [selectedFraction]);
     
+    let [isBacgroundTransparent, setIsBacgroundTransparent] = React.useState(false);
+
+    let handleCheckBoxClick = () => {
+        let checkBox = document.getElementById('chekbox-isbgtransparent');
+        setIsBacgroundTransparent(checkBox.checked);
+    }
+
     return (
     <div className="page-eq-st-container">
         <header>
-        {/*<header className="header-row" >*/}
             <nav>
-                <a href="#" data-active="true">Только перки</a>
-                <a href="#" data-unavailable="true">Перки и Экипировка</a>
+                <a href="#" data-active="true">{getLangString("Только перки")}</a>
+                <a href="#" data-unavailable="true">{getLangString("Перки и Экипировка")}</a>
             </nav>
             <nav>
                 <RadioSelectors_Test 
-                    texts={["Легион","Династия","Весники"]}
+                    texts={[getLangString("Легион"),getLangString("Династия"),getLangString("Вестники")]}
                     onClicks={[ 
                         ()=>{select_fraction(FRACTION_LEGION)}, 
                         ()=>{select_fraction(FRACTION_DYNASTY)},
@@ -543,26 +560,30 @@ function PageEq(){
             </nav>
             <div className="kode-manipulation">
                 <div className="huy">
-                    <span className="nowrap">Код сборки:</span> 
+                    <span className="nowrap">{getLangString("Код сборки:")}</span> 
                     <input id="kode-kopy-input" value={kode} readOnly/> 
-                    <button onClick={handleCopyCodeClick}>Копировать</button>
+                    <button onClick={handleCopyCodeClick}>{getLangString("Копировать")}</button>
                 </div>
                 <div className="huy">
-                    <span className="nowrap">Вставь код сборки:</span>  
+                    <span className="nowrap">{getLangString("Вставь код сборки:")}</span>  
                     <input id="kode-input" type="text"/> 
-                    <button onClick={handleParseKodeClick}>Собрать</button>
+                    <button onClick={handleParseKodeClick}>{getLangString("Собрать")}</button>
+                </div>
+            </div>
+        
+            <div className="kode-manipulation">
+                <div className="huy">
+                    <span className="nowrap">{getLangString("Ссылка сборки:")}</span> 
+                    <input id="url-kode-kopy-input" value={urlKode} readOnly/> 
+                    <button onClick={handleCopyUrlCodeClick}>{getLangString("Копировать")}</button>
                 </div>
             </div>
             <div className="kode-manipulation">
-                <div className="huy"><button onClick={toImage}>В картинку</button></div>
                 <div className="huy">
-                    <span className="nowrap">Ссылка сборки:</span> 
-                    
-                    <input id="url-kode-kopy-input" value={urlKode} readOnly/> 
-                    <button onClick={handleCopyUrlCodeClick}>Копировать</button>
+                    <button onClick={toImage}>{getLangString("В картинку")}</button>
+                    <label htmlFor="chekbox-isbgtransparent" onClick={handleCheckBoxClick}><input id="chekbox-isbgtransparent" type="checkbox"/> {getLangString("Прозрачный фон")} </label>
                 </div>
             </div>
-            
         </header>
         <main className="container">
             <div className="page-eq-st__perks-selector" data-active={active} onClick={handlePerksSelectorOnclick}>
@@ -575,24 +596,25 @@ function PageEq(){
                     perksListWeapon={perksListWeapon}
                     onClick={handleOnlyPerksClick}
                     handleAddClick={handleAddClick}
+                    isBacgroundTransparent={isBacgroundTransparent}
                 />
             </div>
             <div className="page-eq-st__info">
-                <h3>Приблизительный рассчёт урона</h3>
-                <h4>имеется ввиду макс уровень перков и что перк срабатывает независимо от условия выполнения</h4>
-                <h4>рандом учитывается по принципу</h4>
-                <h4> Math.random() {"<="} шанс</h4>
+                <h3>{getLangString("Приблизительный рассчёт урона")}</h3>
+                <h4>{getLangString("имеется ввиду макс уровень перков и что перк срабатывает независимо от условия выполнения")}</h4>
+                <h4>{getLangString("рандом учитывается по принципу")}</h4>
+                <h4>{getLangString("Math.random() <= шанс")}</h4>
                 
-                <h5>это не 100% точный подсчёт</h5>
-                <h5>я не ебу чё там под капотом игры</h5>
-                <h5>может там вообще все не так как я думаю</h5>
+                <h5>{getLangString("это не 100% точный подсчёт")}</h5>
+                <h5>{getLangString("я не ебу чё там под капотом игры")}</h5>
+                <h5>{getLangString("может там вообще все не так как я думаю")}</h5>
                 <div style={{marginBottom:'10px'}}></div>
-                <div>Базовый урон: {baseDamage}</div>
-                <div>Макcимальный урон за 1 удар(сработали все перки): {maxDamage}</div>
-                <div>Cредний урон за 10 ударов: {midDamagePer10}</div>
-                <div>Cуммарный урон за 10 ударов: {sumDamagePer10}</div>
-                <div>Cредний урон за 100 ударов: {midDamagePer100}</div>
-                <div>Cуммарный урон за 100 ударов: {sumDamagePer100}</div>
+                <div>{getLangString("Базовый урон:")} {baseDamage}</div>
+                <div>{getLangString("Макcимальный урон за 1 удар(сработали все перки):")} {maxDamage}</div>
+                <div>{getLangString("Cредний урон за 10 ударов:")} {midDamagePer10}</div>
+                <div>{getLangString("Cуммарный урон за 10 ударов:")} {sumDamagePer10}</div>
+                <div>{getLangString("Cредний урон за 100 ударов:")} {midDamagePer100}</div>
+                <div>{getLangString("Cуммарный урон за 100 ударов:")} {sumDamagePer100}</div>
             </div>
         </main>
     </div>
@@ -600,9 +622,9 @@ function PageEq(){
 }
 
 
-function PageEqStOnlyPerks({perksListHelm, perksListArmor, perksListWeapon, onClick, handleAddClick}){
+function PageEqStOnlyPerks({perksListHelm, perksListArmor, perksListWeapon, onClick, handleAddClick, isBacgroundTransparent=false}){
     return (
-        <div className="page-eq-st__only-perks" onClick={onClick}>
+        <div className="page-eq-st__only-perks" onClick={onClick} data-bg-transparent={isBacgroundTransparent}>
             <CardsRow array={getPerksByIds(perksListHelm)} maxCards={2} onClick={()=>{handleAddClick(SLOT_HELM)}}  />
             <CardsRow array={getPerksByIds(perksListArmor)} onClick={()=>{handleAddClick(SLOT_ARMOR)}} />
             <CardsRow array={getPerksByIds(perksListWeapon)} onClick={()=>{handleAddClick(SLOT_WEAPON)}}/>
@@ -661,6 +683,7 @@ function CardPlaceholder({onClick=null}){
 
 // -PageEqList------------------------------------
 function PageEqList(){
+    //
     let sorted = sortPerks(DATA_PERKS);
     let [selectedFraction, setSelectedFraction] = React.useState(null);
     let [selectedRarity, setSelectedRarity] = React.useState(null);
@@ -690,14 +713,14 @@ function PageEqList(){
     <div className="page-eq-st-container">
         <header>
             <nav>
-                <a href="#" data-unavailable>Экипировка</a>
-                <a href="#" data-unavailable >Перки</a>
-                <a href="#" data-active="true" >Спецприемы</a>
-                <a href="#" data-unavailable >Не доступные вещи</a>
+                <a href="#" data-unavailable>{getLangString("Экипировка")}</a>
+                <a href="#" data-unavailable >{getLangString("Перки")}</a>
+                <a href="#" data-active="true" >{getLangString("Спецприемы")}</a>
+                <a href="#" data-unavailable >{getLangString("Не доступные вещи")}</a>
             </nav>
             <nav>
                 <RadioSelectors_Test 
-                    texts={["Легион","Династия","Весники"]}
+                    texts={[getLangString("Легион"),getLangString("Династия"),getLangString("Вестники")]}
                     onClicks={[ 
                         ()=>{select_fraction(FRACTION_LEGION)}, 
                         ()=>{select_fraction(FRACTION_DYNASTY)},
@@ -708,11 +731,11 @@ function PageEqList(){
             <nav>
                 <RadioSelectors_Test 
                     texts={[
-                        "Уникальное",
-                        "Легендарное",
-                        "Эпическое",
-                        "Редкое",
-                        "Обычное"
+                        getLangString("Уникальное"),
+                        getLangString("Легендарное"),
+                        getLangString("Эпическое"),
+                        getLangString("Редкое"),
+                        getLangString("Обычное")
                     ]}
                     onClicks={[
                         ()=>{select_rarity(RARITY_UNIQUE)},
@@ -741,8 +764,8 @@ function PageEqList(){
 
 function RadioSelectors_Test({texts, onClicks, classesList=[], defaultActiveId=null, setIdToActive=null}){
     let [activeId, setActiveId] = React.useState(defaultActiveId);
-    console.log("defaultActiveId", defaultActiveId);
-    console.log("setIdToActive", setIdToActive);
+    // console.log("defaultActiveId", defaultActiveId);
+    // console.log("setIdToActive", setIdToActive);
     let toggleA_s = texts.map((text, i)=>{
         return (
             <a 
@@ -761,7 +784,87 @@ function RadioSelectors_Test({texts, onClicks, classesList=[], defaultActiveId=n
 
 function PageAbout(){
     return (
-        <div>и тут тоже</div>
+        <div className="page-about">
+            <p>Site to share collections of perks and items</p>
+            <p>Сайт чтобы делится сборками перков</p>
+            <hr/>
+            <p>Author: SergoZar</p>
+            <p>
+                Repo(Please put a star(: ): <a href="https://github.com/SergoZar/shadowfight3-test">https://github.com/SergoZar/shadowfight3-test</a>
+            </p>
+            <p>
+                Github:<a href="https://github.com/sergozar">https://github.com/sergozar</a>
+            </p>
+            <p>
+                Telegram: <a href="https://t.me/SergoZarOfficiant">https://t.me/SergoZarOfficiant</a>
+            </p>
+            <p>
+                Fediverse(Pleroma): <a href="https://social.net.ua/users/SergoZar">https://social.net.ua/users/SergoZar</a>
+            </p>
+            <p>
+                Reddit: <a href="https://www.reddit.com/user/SergoZar">https://www.reddit.com/user/SergoZar/</a>
+            </p>
+            <hr/>
+            <h3>Планы на будущее</h3>
+            <p>
+                <ul>
+                    <li>Поддержка других языков</li>
+                    <li>Техническое описание всех перков чтобы подсчитывать урон, защиту и еще что-то</li>
+                    <li>Список сетов</li>
+                    <li>Техническое описание всех сетов чтобы подсчитывать урон, защиту и еще что-то</li>
+                    <li>Список спецприемов</li>
+                    <li>Техническое описание всех спецприемов чтобы подсчитывать урон, защиту и еще что-то</li>
+                    <li>Вкладка рекомендованых сборок</li>
+                    <li>Поддержка смены цвета фона</li>
+                    <li>Несколько перков для слота(до 4 перков) чтобы предложить игроку перк на выбор для слота</li>
+                    <li>Сортировка по сундукам или способу получения</li>
+                </ul>
+            </p>
+			<h3>Plans for the future</h3>
+            <p>
+                <ul>
+                    <li>Other languages support</li>
+                    <li>Technical description of all perks to calculate damage, defense, and more</li>
+					<li>List of sets</li>
+					<li>Technical description of all sets to calculate damage, defense, and more</li>
+					<li>List of special moves</li>
+					<li>Technical description of all special moves to calculate damage, defense, and more</li>
+					<li>Tab for recommended builds</li>
+					<li>Support for background color change</li>
+					<li>Multiple perks per slot (up to 4 perks) to offer the player a choice for the slot</li>
+					<li>Sorting by chests or acquisition method</li>
+                </ul>
+            </p>
+            <hr/>
+            <h3>Update log:</h3>
+            <h4>v0.1.1 (27.02.2025)</h4>
+            <p>
+                <ul>
+                    <li>Add  english language support (by ChatGPT)(auto setup if browser language not is ru or ua)</li>
+                    <li>Добавлена поддержка английского(перевод от ChatGPT)(включается автоматически если язык барузера не русский или не украинский)</li>
+                    <li>Add checkbox to set transparent background in screenshot</li>
+                    <li>Добавлена галочка чтобы сделать прозрачный фон для скрина</li>
+                    <li>Low best adaptation for mobile browsers</li>
+                    <li>Немеого улучшена адаптация под телефоны</li>
+                </ul>
+            </p>
+            <h4>v0.1.0 (26.02.2025)</h4>
+            <p>
+                <ul>
+                    <li>Техническое описание перков(для подсчёта урона): Берсерк,  Кровотечение, Теневой ожог, Сила Химмельштайна, King's Blessing, Ruolan's Arrogance</li>
+                    <li>Technical : Berserk,  Bleeding, Shadow Burn, Himmelstein's Power, King's Blessing, Ruolan's Arrogance </li>
+                    
+                </ul>
+            </p>
+            
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+        </div>
     )
 }
 
