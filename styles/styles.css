@@ -285,6 +285,7 @@ a[data-unavailable] {
     padding:0 20px;
     justify-content: center;
     max-height: 887px;
+    overflow-x: auto;
 }
 
 .page-eq-st__only-perks,
