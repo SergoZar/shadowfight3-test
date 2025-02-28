@@ -217,6 +217,22 @@ function SwitchPage({page}){
     }
 }
 
+// 
+
+function Modal({text, isShow=false}){
+    
+    // let [lastText, setLastText] = React.useState("");
+
+    return (
+        <div id="modal" data-isnone={isShow}>
+            <div className="modal-text"> {text} </div>
+            <div className="modal-x" onClick={()=>{setIsnone(true); setLastText(text)}}>X</div>
+        </div>
+    )
+}
+
+
+// -PageHome--------------------------------------
 function PageHome(){
     return (
         <div>{getLangString("Пока не придумал что тут")}</div>
@@ -467,11 +483,17 @@ function PageEq(){
         console.log('isBacgroundTransparent', isBacgroundTransparent);
         html2canvas(target, {backgroundColor: null}).then(canvas => {
             const a = document.createElement("a");
-            a.href = canvas.toDataURL("image/png");
+            // throw new TypeError("oops");
+            a.href = canvas.toDataURL("image/png", 0.7);
+            anal = a.href;
             a.download = `sf3_fit__${kode}__.png`;
             a.click();
             a.remove();
-        });
+
+        }).catch((err) => {
+            setIsModalShow(true);
+            setModalText(" "+ err);
+        });;
     }
 
     let [{baseDamage, midDamagePer10, midDamagePer100,sumDamagePer10, sumDamagePer100, maxDamage}, setDamages] = React.useState(()=>({
@@ -538,8 +560,17 @@ function PageEq(){
         let checkBox = document.getElementById('chekbox-isbgtransparent');
         setIsBacgroundTransparent(checkBox.checked);
     }
+    let [modalText, setModalText] = React.useState("text");
+    let [isModalShow, setIsModalShow]= React.useState(false);
 
     return (
+    <>
+    <div id="modal" data-isnone={!isModalShow} style={{height: document.body.offsetHeight}}>
+    <div>
+        <div className="modal-text"> please send this error for me(my contacts in about page): <br/><br/> {modalText} </div>
+        <button className="modal-x" onClick={()=>{setIsModalShow(false);}}>CLOSE</button>
+    </div>
+    </div>
     <div className="page-eq-st-container">
         <header>
             <nav>
@@ -570,7 +601,6 @@ function PageEq(){
                     <button onClick={handleParseKodeClick}>{getLangString("Собрать")}</button>
                 </div>
             </div>
-        
             <div className="kode-manipulation">
                 <div className="huy">
                     <span className="nowrap">{getLangString("Ссылка сборки:")}</span> 
@@ -581,15 +611,17 @@ function PageEq(){
             <div className="kode-manipulation">
                 <div className="huy">
                     <button onClick={toImage}>{getLangString("В картинку")}</button>
-                    <label htmlFor="chekbox-isbgtransparent" onClick={handleCheckBoxClick}><input id="chekbox-isbgtransparent" type="checkbox"/> {getLangString("Прозрачный фон")} </label>
+                    <label htmlFor="chekbox-isbgtransparent" onClick={handleCheckBoxClick}>
+                    <input id="chekbox-isbgtransparent" type="checkbox"/> 
+                    <span className="nowrap">{getLangString("Прозрачный фон")}</span> </label>
                 </div>
             </div>
         </header>
-        <main className="container">
-            <div className="page-eq-st__perks-selector" data-active={active} onClick={handlePerksSelectorOnclick}>
+        <main className="container grid-test1">
+            <div className="page-eq-st__perks-selector grid-area-a" data-active={active} onClick={handlePerksSelectorOnclick}>
                 <CardsList array={sortPerks(listToPrint)} type={CARD_TYPE_PERK} isOneRow/>
             </div>
-            <div>
+            <div className="grid-area-b">
                 <PageEqStOnlyPerks 
                     perksListHelm={perksListHelm}
                     perksListArmor={perksListArmor}
@@ -599,7 +631,7 @@ function PageEq(){
                     isBacgroundTransparent={isBacgroundTransparent}
                 />
             </div>
-            <div className="page-eq-st__info">
+            <div className="page-eq-st__info grid-area-c">
                 <h3>{getLangString("Приблизительный рассчёт урона")}</h3>
                 <h4>{getLangString("имеется ввиду макс уровень перков и что перк срабатывает независимо от условия выполнения")}</h4>
                 <h4>{getLangString("рандом учитывается по принципу")}</h4>
@@ -617,7 +649,7 @@ function PageEq(){
                 <div>{getLangString("Cуммарный урон за 100 ударов:")} {sumDamagePer100}</div>
             </div>
         </main>
-    </div>
+    </div></>
     )
 }
 
@@ -632,13 +664,6 @@ function PageEqStOnlyPerks({perksListHelm, perksListArmor, perksListWeapon, onCl
     )
 }
 
-/**
- * @param{{
- *     array:any,
- *     onClick:any,
- *     test:'a'|'b'
- * }} props 
- */
 function CardsRow({array=[], onClick=null, maxCards=3}){
     let cards_count = 0;
     if (array.length < maxCards){
@@ -837,7 +862,19 @@ function PageAbout(){
             </p>
             <hr/>
             <h3>Update log:</h3>
-            <h4>v0.1.1 (27.02.2025)</h4>
+            <h4>v0.1.1.1 (28.02.2025)</h4>
+            <p>
+                <ul>
+                    <li>Fixed bug with adaptation on phones</li>
+                    <li>Исправлен баг с адаптацией под телефоны</li>
+                    <li>Changed behavior on the telephone screens</li>
+                    <li>Изменено поведение на экранах телефонов</li>
+                    <li>Added a modal window with a build  conversion error into a picture</li>
+                    <li>Добавлено модальное окно при ошибке конвератции сборки в картинку</li>
+                </ul>
+            </p>
+            <h3>Update log:</h3>
+            <h4>v0.1.1.0 (27.02.2025)</h4>
             <p>
                 <ul>
                     <li>Add  english language support (by ChatGPT)(auto setup if browser language not is ru or ua)</li>
@@ -848,7 +885,7 @@ function PageAbout(){
                     <li>Немеого улучшена адаптация под телефоны</li>
                 </ul>
             </p>
-            <h4>v0.1.0 (26.02.2025)</h4>
+            <h4>v0.1.0.0 (26.02.2025)</h4>
             <p>
                 <ul>
                     <li>Техническое описание перков(для подсчёта урона): Берсерк,  Кровотечение, Теневой ожог, Сила Химмельштайна, King's Blessing, Ruolan's Arrogance</li>
