@@ -147,7 +147,7 @@ const DATA_PERKS = [
         "fraction": "dynasty",
         "rarity": "legendary",
         "id": 16,
-        "slot": ""
+        "slot": "armor"
     },
     {
         "name": "",
@@ -243,7 +243,7 @@ const DATA_PERKS = [
         "fraction": "dynasty",
         "rarity": "legendary",
         "id": 28,
-        "slot": "weapon"
+        "slot": "helm",
     },
     {
         "name": "",
@@ -678,7 +678,7 @@ const DATA_PERKS = [
         "fraction": "dynasty",
         "rarity": "legendary",
         "id": 80,
-        "slot": "armor"
+        "slot": "weapon"
     },
     {
         "name": "",
