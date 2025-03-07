@@ -4,17 +4,17 @@
 		<meta charSet="utf-8" data-next-head=""/>
 		<meta name="viewport" content="width=device-width" data-next-head=""/>
 		<link data-next-font="" rel="preconnect" href="/" crossorigin="anonymous"/>
-		<link rel="preload" href="./_next/static/css/3cbf1550030fc1d0.css" as="style"/>
-		<link rel="stylesheet" href="./_next/static/css/3cbf1550030fc1d0.css" data-n-g=""/>
+		<link rel="preload" href="_next/static/css/3cbf1550030fc1d0.css" as="style"/>
+		<link rel="stylesheet" href="_next/static/css/3cbf1550030fc1d0.css" data-n-g=""/>
 		<noscript data-n-css=""/>
-		<script defer="" noModule="" src="./_next/static/chunks/polyfills-42372ed130431b0a.js"/>
-		<script src="./_next/static/chunks/webpack-2bb2c72dec7ba699.js" defer=""/>
-		<script src="./_next/static/chunks/framework-a4ddb9b21624b39b.js" defer=""/>
-		<script src="./_next/static/chunks/main-3e32dd0f84ff4db0.js" defer=""/>
-		<script src="./_next/static/chunks/pages/_app-d2b4b3f7c0c42351.js" defer=""/>
-		<script src="./_next/static/chunks/pages/index-576232cb019981ac.js" defer=""/>
-		<script src="./_next/static/8NE336z6YFaJ8lTpXSRVc/_buildManifest.js" defer=""/>
-		<script src="./_next/static/8NE336z6YFaJ8lTpXSRVc/_ssgManifest.js" defer=""/>
+		<script defer="" noModule="" src="_next/static/chunks/polyfills-42372ed130431b0a.js"/>
+		<script src="_next/static/chunks/webpack-2bb2c72dec7ba699.js" defer=""/>
+		<script src="_next/static/chunks/framework-a4ddb9b21624b39b.js" defer=""/>
+		<script src="_next/static/chunks/main-3e32dd0f84ff4db0.js" defer=""/>
+		<script src="_next/static/chunks/pages/_app-d2b4b3f7c0c42351.js" defer=""/>
+		<script src="_next/static/chunks/pages/index-576232cb019981ac.js" defer=""/>
+		<script src="_next/static/8NE336z6YFaJ8lTpXSRVc/_buildManifest.js" defer=""/>
+		<script src="_next/static/8NE336z6YFaJ8lTpXSRVc/_ssgManifest.js" defer=""/>
 	</head>
 	<body>
 		<link rel="preload" as="image" href="img_webp/card_bg.webp"/>
